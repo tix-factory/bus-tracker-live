@@ -1,5 +1,7 @@
+import { Fragment } from 'react';
+
 describe('foo', function () {
   test('bar', function () {
-    expect(1).toBe(2 - 1);
+    expect(Fragment && true).toBe(true);
   });
 });
