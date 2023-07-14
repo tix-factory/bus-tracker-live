@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33502.453
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TixFactory.BusTracker.Api", "src\TixFactory.BusTracker.Api.csproj", "{F059BE19-8F1E-4085-B9A9-488F99E79093}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TixFactory.BusTracker.Api.Tests", "tests\TixFactory.BusTracker.Api.Tests.csproj", "{95CBAB88-5C06-4EFF-83F0-DE1EC10925CE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F059BE19-8F1E-4085-B9A9-488F99E79093}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F059BE19-8F1E-4085-B9A9-488F99E79093}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F059BE19-8F1E-4085-B9A9-488F99E79093}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F059BE19-8F1E-4085-B9A9-488F99E79093}.Release|Any CPU.Build.0 = Release|Any CPU
+		{95CBAB88-5C06-4EFF-83F0-DE1EC10925CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{95CBAB88-5C06-4EFF-83F0-DE1EC10925CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{95CBAB88-5C06-4EFF-83F0-DE1EC10925CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{95CBAB88-5C06-4EFF-83F0-DE1EC10925CE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {86476554-5535-494A-B670-3E621F432251}
+	EndGlobalSection
+EndGlobal
