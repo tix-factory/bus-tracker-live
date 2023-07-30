@@ -47,4 +47,10 @@ public class TransitOperatorResult
     /// </summary>
     [DataMember(Name = "Monitored")]
     public bool Monitored { get; set; }
+
+    /// <summary>
+    /// The region the transit operator belongs to.
+    /// </summary>
+    [IgnoreDataMember]
+    internal string Region { get; set; }
 }

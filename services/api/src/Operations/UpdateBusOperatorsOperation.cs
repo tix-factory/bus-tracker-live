@@ -1,12 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
 using MongoDB.Driver;
-using Newtonsoft.Json;
 using TixFactory.BusTracker.Api.Entities;
 using TixFactory.MongoDB;
 using TixFactory.Operations;
@@ -20,23 +17,19 @@ namespace TixFactory.BusTracker.Api;
 public class UpdateBusOperatorsOperation : IAsyncAction
 {
     private readonly IMongoCollection<BusOperatorEntity> _BusOperators;
-    private readonly HttpClient _HttpClient;
-    private readonly IConfiguration _Configuration;
-    private readonly string _Region;
+    private readonly ITransitClient _TransitClient;
 
-    public UpdateBusOperatorsOperation(IMongoCollection<BusOperatorEntity> busOperators, HttpClient httpClient, IConfiguration configuration)
+    public UpdateBusOperatorsOperation(IMongoCollection<BusOperatorEntity> busOperators, ITransitClient transitClient)
     {
         _BusOperators = busOperators ?? throw new ArgumentNullException(nameof(busOperators));
-        _HttpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-        _Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-        _Region = _HttpClient.BaseAddress?.Host;
+        _TransitClient = transitClient ?? throw new ArgumentNullException(nameof(transitClient));
     }
 
     public async Task<OperationError> ExecuteAsync(CancellationToken cancellationToken)
     {
         var existingBusOperatorsQuery = await _BusOperators.FindAsync(Builders<BusOperatorEntity>.Filter.Empty, cancellationToken: cancellationToken);
         var existingBusOperators = await existingBusOperatorsQuery.ToListAsync(cancellationToken);
-        var validTransitOperators = await LoadTransitOperatorsAsync(cancellationToken);
+        var validTransitOperators = await _TransitClient.LoadTransitOperatorsAsync(cancellationToken);
         var operatorIds = new HashSet<string>();
 
         foreach (var transitOperator in validTransitOperators)
@@ -49,16 +42,19 @@ public class UpdateBusOperatorsOperation : IAsyncAction
 
             operatorIds.Add(transitOperator.Id);
 
-            var record = existingBusOperators.FirstOrDefault(o => o.Region == _Region && o.OperatorId == transitOperator.Id);
+            var record = existingBusOperators.FirstOrDefault(o => o.Region == transitOperator.Region && o.OperatorId == transitOperator.Id);
             if (record != null)
             {
                 await _BusOperators.UpdateOneAsync(e => e.Id == record.Id, entity =>
                 {
+                    // Sometimes the short name doesn't exist with the public transit authority, so don't overwrite it to null.
+                    var shortName = transitOperator.ShortName ?? entity.ShortName;
+
                     if (entity.Enabled
                         && entity.Name == transitOperator.Name
-                        && entity.ShortName == transitOperator.ShortName
+                        && entity.ShortName == shortName
                         && entity.Monitored == transitOperator.Monitored
-                        && entity.Region == _Region)
+                        && entity.Region == transitOperator.Region)
                     {
                         // Record already matches expected state, do nothing.
                         return false;
@@ -66,9 +62,9 @@ public class UpdateBusOperatorsOperation : IAsyncAction
 
                     entity.Enabled = true;
                     entity.Name = transitOperator.Name;
-                    entity.ShortName = transitOperator.ShortName;
+                    entity.ShortName = shortName;
                     entity.Monitored = transitOperator.Monitored;
-                    entity.Region = _HttpClient.BaseAddress?.Host;
+                    entity.Region = transitOperator.Region;
                     entity.Updated = DateTime.UtcNow;
                     return true;
                 }, cancellationToken);
@@ -81,7 +77,7 @@ public class UpdateBusOperatorsOperation : IAsyncAction
                     Name = transitOperator.Name,
                     ShortName = transitOperator.ShortName,
                     Monitored = transitOperator.Monitored,
-                    Region = _Region,
+                    Region = transitOperator.Region,
                     Enabled = true,
                     Updated = DateTime.UtcNow,
                     Created = DateTime.UtcNow
@@ -94,12 +90,6 @@ public class UpdateBusOperatorsOperation : IAsyncAction
 
         foreach (var busOperator in existingBusOperators)
         {
-            if (busOperator.Region != _Region)
-            {
-                // This bus operator belongs to a different region, don't touch it.
-                continue;
-            }
-
             if (operatorIds.Contains(busOperator.OperatorId))
             {
                 // This bus operator is still valid
@@ -117,17 +107,5 @@ public class UpdateBusOperatorsOperation : IAsyncAction
         }
 
         return null;
-    }
-
-    private async Task<IReadOnlyCollection<TransitOperatorResult>> LoadTransitOperatorsAsync(CancellationToken cancellationToken)
-    {
-        var apiKey = _Configuration.GetValue<string>("511_API_KEY");
-        if (string.IsNullOrWhiteSpace(apiKey))
-        {
-            throw new ApplicationException("Missing 511_API_KEY, cannot load bus operators");
-        }
-
-        var response = await _HttpClient.GetStringAsync(new Uri($"http://api.511.org/transit/operators?apiKey={apiKey}"), cancellationToken);
-        return JsonConvert.DeserializeObject<TransitOperatorResult[]>(response);
     }
 }

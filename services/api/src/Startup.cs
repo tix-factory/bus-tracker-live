@@ -1,3 +1,6 @@
+using System;
+using System.Net;
+using System.Net.Http;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using TixFactory.BusTracker.Api.Entities;
@@ -29,6 +32,15 @@ public class Startup : Http.Service.Startup
         services.AddMongoCollection<BusScheduleEntity>();
         services.AddMongoCollection<BusTripEntity>();
         services.AddMongoCollection<BusTripStopEntity>();
+
+        // Main Dependencies
+        services.AddHttpClient<ITransitClient, TransitClient>(httpClient =>
+        {
+            httpClient.BaseAddress = new Uri("https://api.511.org");
+        }).ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+        {
+            AutomaticDecompression = DecompressionMethods.GZip
+        });
 
         // Operations
         services.AddSingleton<UpdateBusOperatorsOperation>();
