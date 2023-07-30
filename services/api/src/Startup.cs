@@ -1,14 +1,7 @@
-using System;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Converters;
-using TixFactory.Operations;
+using TixFactory.BusTracker.Api.Entities;
+using TixFactory.MongoDB;
 
 namespace TixFactory.BusTracker.Api;
 
@@ -28,5 +21,13 @@ public class Startup : Http.Service.Startup
     public override void ConfigureServices(IServiceCollection services)
     {
         base.ConfigureServices(services);
+
+        // Database Dependencies
+        services.AddMongoCollection<BusOperatorEntity>();
+        services.AddMongoCollection<BusStopEntity>();
+        services.AddMongoCollection<BusLineEntity>();
+        services.AddMongoCollection<BusScheduleEntity>();
+        services.AddMongoCollection<BusTripEntity>();
+        services.AddMongoCollection<BusTripStopEntity>();
     }
 }
