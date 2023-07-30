@@ -29,5 +29,8 @@ public class Startup : Http.Service.Startup
         services.AddMongoCollection<BusScheduleEntity>();
         services.AddMongoCollection<BusTripEntity>();
         services.AddMongoCollection<BusTripStopEntity>();
+
+        // Operations
+        services.AddSingleton<UpdateBusOperatorsOperation>();
     }
 }
