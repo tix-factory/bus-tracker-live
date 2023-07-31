@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Http;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using MongoDB.Driver;
 using TixFactory.BusTracker.Api.Entities;
 using TixFactory.MongoDB;
 
@@ -15,9 +16,13 @@ public class Startup : Http.Service.Startup
     /// Startup method for the application, after <see cref="ConfigureServices"/>.
     /// </summary>
     /// <param name="app">The <see cref="IApplicationBuilder"/>.</param>
-    public void Configure(IApplicationBuilder app)
+    /// <param name="busOperators">The collection for bus operators.</param>
+    public void Configure(IApplicationBuilder app, IMongoCollection<BusOperatorEntity> busOperators)
     {
         UseConfiguration(app);
+
+        // Create database indices
+        CreateIndices(busOperators);
     }
 
     /// <inheritdoc cref="Http.Service.Startup.ConfigureServices"/>
@@ -44,5 +49,14 @@ public class Startup : Http.Service.Startup
 
         // Operations
         services.AddSingleton<UpdateBusOperatorsOperation>();
+    }
+
+    private void CreateIndices(IMongoCollection<BusOperatorEntity> busOperators)
+    {
+        var operatorIndexKeys = Builders<BusOperatorEntity>.IndexKeys.Ascending(e => e.Region).Ascending(e => e.OperatorId);
+        busOperators.Indexes.CreateOne(new CreateIndexModel<BusOperatorEntity>(operatorIndexKeys, new CreateIndexOptions
+        {
+            Unique = true
+        }));
     }
 }
