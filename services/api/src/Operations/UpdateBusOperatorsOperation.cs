@@ -19,12 +19,22 @@ public class UpdateBusOperatorsOperation : IAsyncAction
     private readonly IMongoCollection<BusOperatorEntity> _BusOperators;
     private readonly ITransitClient _TransitClient;
 
+    /// <summary>
+    /// Initializes a new <seealso cref="UpdateBusOperatorsOperation"/>.
+    /// </summary>
+    /// <param name="busOperators">The <seealso cref="IMongoCollection{TDocument}"/> for <seealso cref="BusOperatorEntity"/>.</param>
+    /// <param name="transitClient">The <seealso cref="ITransitClient"/>.</param>
+    /// <exception cref="ArgumentNullException">
+    /// - <paramref name="busOperators"/>
+    /// - <paramref name="transitClient"/>
+    /// </exception>
     public UpdateBusOperatorsOperation(IMongoCollection<BusOperatorEntity> busOperators, ITransitClient transitClient)
     {
         _BusOperators = busOperators ?? throw new ArgumentNullException(nameof(busOperators));
         _TransitClient = transitClient ?? throw new ArgumentNullException(nameof(transitClient));
     }
 
+    /// <inheritdoc cref="IAsyncAction.ExecuteAsync"/>
     public async Task<OperationError> ExecuteAsync(CancellationToken cancellationToken)
     {
         var existingBusOperatorsQuery = await _BusOperators.FindAsync(Builders<BusOperatorEntity>.Filter.Empty, cancellationToken: cancellationToken);

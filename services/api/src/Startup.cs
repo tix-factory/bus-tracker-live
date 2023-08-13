@@ -49,6 +49,7 @@ public class Startup : Http.Service.Startup
 
         // Operations
         services.AddSingleton<UpdateBusOperatorsOperation>();
+        services.AddSingleton<RefreshBusScheduleOperation>();
     }
 
     private void CreateIndices(IMongoCollection<BusOperatorEntity> busOperators)

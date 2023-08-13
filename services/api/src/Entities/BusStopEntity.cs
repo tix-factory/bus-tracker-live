@@ -39,13 +39,13 @@ public class BusStopEntity
     /// The physical latitude position of this bus stop.
     /// </summary>
     [BsonElement("latitude")]
-    public float Latitude { get; set; }
+    public double Latitude { get; set; }
 
     /// <summary>
     /// The physical longitude position of this bus stop.
     /// </summary>
     [BsonElement("longitude")]
-    public float Longitude { get; set; }
+    public double Longitude { get; set; }
 
     /// <summary>
     /// When this bus stop was created.
