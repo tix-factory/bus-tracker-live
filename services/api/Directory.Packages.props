@@ -7,6 +7,7 @@
   <ItemGroup>
     <!-- Internal Packages -->
     <PackageVersion Include="TixFactory.Http.Service" Version="$(TixFactoryVersion)" />
+    <PackageVersion Include="TixFactory.MongoDB" Version="$(TixFactoryVersion)" />
 
     <!-- External Packages -->
     <PackageVersion Include="AngleSharp" Version="1.0.1" />

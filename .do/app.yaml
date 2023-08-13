@@ -34,6 +34,10 @@ services:
     routes:
       - path: /api
         preserve_path_prefix: true
+    envs:
+      - key: 'MONGODB_CONNECTION_STRING'
+        scope: 'RUN_TIME'
+        value: '${db.DATABASE_URL}'
     cors:
       allow_methods:
         - GET
@@ -56,3 +60,14 @@ static_sites:
     routes:
       - path: /
     catchall_document: index.html
+
+databases:
+  # This is the database that is keeping track of all the buses.
+  # This is necessary because there are a lot of buses, too many to be sending API calls for
+  # and keeping the data in-memory.
+  - name: 'db'
+    cluster_name: 'bus-tracker-db'
+    db_name: 'bus_tracker'
+    engine: 'MONGODB'
+    production: true
+    version: '6'
